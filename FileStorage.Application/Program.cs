@@ -2,11 +2,11 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using FileStorage.Application.Extensions;
-using FileStorage.Application.MapperProfiles;
 using FileStorage.Common.Options;
 using FileStorage.Database.Context;
 using System.Reflection;
 using FileStorage.Common.Middlewares;
+using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 var apiTitle = $"{builder.Configuration.GetValue<string>("Application:AppTitle")} - FileStorage API";
@@ -75,15 +75,14 @@ app.UseCustomExceptionMiddleware();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsProduction())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI(c =>
+    app.UseSwagger(options =>
     {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", apiTitle);
+        options.RouteTemplate = "/openapi/{documentName}.json";
     });
+    app.MapScalarApiReference();
 }
 
 app.UseCors("CorsPolicy");
-/*app.UseRequestLogging();*/
 
 app.MapControllers();
 
